@@ -25,8 +25,7 @@ const int MAX_MES_SIZE = 255;
 const int MAX_THREAD_SIZE = 60;
 const int MAX_CON_SIZE = 50;
 char client_message[MAX_MES_SIZE];
-//char buffer[MAX_MES_SIZE];
-//pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 int shmMem = 0;
 
 void * socketThread(void *arg)
@@ -34,18 +33,6 @@ void * socketThread(void *arg)
     int newSocket = *((int *)arg);
 
     recv(newSocket , client_message , MAX_MES_SIZE , 0);
-    /*
-    // Send message to the client socket 
-    pthread_mutex_lock(&lock);
-    char *message = malloc(sizeof(client_message) + 20);
-    strcpy(message, "Hello Client : ");
-    strcat(message, client_message);
-    strcat(message, "\n");
-    strcpy(buffer, message);
-    free(message);
-    pthread_mutex_unlock(&lock);
-    //sleep(1);
-    */
 
     //[10, -10, 
     // 15, -5,
@@ -125,8 +112,6 @@ void * socketThread(void *arg)
                 index++;
             }
         }
-
-        printf("Data written in memory: %d\t%d\t%d\t%d\t",result[0], result[1], result[2], result[3]);
         
         //detach from shared memory
         shmdt(result);
