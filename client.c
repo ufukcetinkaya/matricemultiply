@@ -29,6 +29,7 @@ void func(int sockfd)
 	int C2 = 2;
 
 	bzero(buff, sizeof(buff));
+	//first matrice
 	buff[0] = R1;
 	buff[1] = C1;
 	buff[2] = 1;
@@ -37,7 +38,7 @@ void func(int sockfd)
 	buff[5] = 4;
 	buff[6] = 5;
 	buff[7] = 6;
-
+	//second matrice
 	buff[8] = R2;
 	buff[9] = C2;
 	buff[10] = 7;
