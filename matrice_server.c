@@ -16,7 +16,8 @@
 #define PORT 8080
 
 // structure for message queue
-struct mesg_buffer {
+struct mesg_buffer 
+{
 	long mesg_type;
 	char mesg_text[100];
 } message;
@@ -24,7 +25,6 @@ struct mesg_buffer {
 const int MAX_MES_SIZE = 255;
 const int MAX_THREAD_SIZE = 60;
 const int MAX_CON_SIZE = 50;
-char client_message[MAX_MES_SIZE];
 
 int shmMem = 0;
 
@@ -32,21 +32,16 @@ void * socketThread(void *arg)
 {
     int newSocket = *((int *)arg);
 
+    char client_message[MAX_MES_SIZE];
+
     recv(newSocket , client_message , MAX_MES_SIZE , 0);
 
-    //[10, -10, 
-    // 15, -5,
-    // 12, 30]
+    int R1 = (int)client_message[0];        
+    int C1 = (int)client_message[1];        
+    int R2 = (int)client_message[(R1*C1) + 2];  
+    int C2 = (int)client_message[(R1*C1) + 3]; 
 
-    //[1, -2, 3,
-    // -4, 5, 6]
-
-    int R1 = (int)client_message[0];        //3
-    int C1 = (int)client_message[1];        //2
-    int R2 = (int)client_message[(R1*C1) + 2];  //2
-    int C2 = (int)client_message[(R1*C1) + 3];  //3
-
-    if (C1 == R2)
+    if ((C1 == R2) && (C1 != 0))
     {
         int firstMatrice[R1][C1];
         int secondMatrice[R2][C2];
@@ -87,7 +82,7 @@ void * socketThread(void *arg)
             }
         }
 
-        char keyName[9];
+        char keyName[10];
         sprintf(keyName, "shmfile%d", shmMem);
 
         ++shmMem;
@@ -127,7 +122,7 @@ void * socketThread(void *arg)
         int msgid;
 
         // ftok to generate unique key
-        msgKey = ftok("progfile", 65);
+        msgKey = ftok("progfile0", 65);
 
         // msgget creates a message queue
         // and returns identifier
