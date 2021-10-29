@@ -20,33 +20,54 @@ struct mesg_buffer {
 #define PORT 8080
 #define SA struct sockaddr
 
+int matriceBuff[255];
+int matriceIndex = 0;
+
+int read_ints (const char* file_name)
+{
+  	FILE* file = fopen (file_name, "r");
+
+	printf("File: %s\n", file_name);
+  	int i = 0;
+	int n = 0;
+
+  	fscanf (file, "%d", &i);    
+  	while (!feof (file))
+	{  
+		//printf ("%d", i);
+		matriceBuff[matriceIndex] = i;
+		matriceIndex++;	
+		n++;	
+		fscanf (file, "%d", &i);      
+	}
+  	fclose (file);  
+	return n;      
+}
+
 void func(int sockfd)
 {
+	
+	int R1 = matriceBuff[0];
+	int C1 = matriceBuff[1];
+	int R2 = matriceBuff[(R1 * C1) + 2];
+	int C2 = matriceBuff[(R1 * C1) + 3];
+	
+
 	char buff[MAX];
-	int R1 = 2;
-	int C1 = 3;
-	int R2 = 3;
-	int C2 = 2;
 
 	bzero(buff, sizeof(buff));
-	//first matrice
-	buff[0] = R1;
-	buff[1] = C1;
-	buff[2] = 1;
-	buff[3] = 2;
-	buff[4] = 3;
-	buff[5] = 4;
-	buff[6] = 5;
-	buff[7] = 6;
-	//second matrice
-	buff[8] = R2;
-	buff[9] = C2;
-	buff[10] = 7;
-	buff[11] = 8;
-	buff[12] = 9;
-	buff[13] = 10;
-	buff[14] = 11;
-	buff[15] = 12;
+
+	for (int k = 0; k < sizeof(buff); k++)
+	{
+		buff[k] = matriceBuff[k];
+	}
+	
+	/*
+	if (send(sockfd , matriceBuff , (R1 * C1) + (R2 * C2) + 4 , 0) < 0)
+	{
+		printf("Send failed\n");
+	}
+	*/
 
 	if (send(sockfd , buff , sizeof(buff) , 0) < 0)
 	{
@@ -57,7 +78,7 @@ void func(int sockfd)
 	int msgid;
 
 	// ftok to generate unique key
-	key = ftok("progfile", 65);
+	key = ftok("progfile0", 65);
 
 	// msgget creates a message queue
 	// and returns identifier
@@ -94,7 +115,7 @@ void func(int sockfd)
 	shmdt(str);
 	
 	// destroy the shared memory
-	shmctl(shmid,IPC_RMID,NULL);
+	shmctl(shmid, IPC_RMID, NULL);
 }
 
 int main()
@@ -132,8 +153,32 @@ int main()
     }
 
 	// function for chat
-	func(sockfd);
+	//func(sockfd);
 
+	char buffer[100];
+	int n = 0;
+
+	printf("Enter the first Matrice: ");
+    while ((buffer[n++] = getchar()) != '\n');
+	buffer[n - 1] = '\0';
+	printf("File Name: %s\n", buffer);
+
+	bzero(matriceBuff, sizeof(matriceBuff));
+	
+	int firstSize = read_ints(buffer);
+
+	matriceIndex = firstSize;
+
+	n = 0;
+	bzero(buffer, sizeof(buffer));
+	printf("Enter the second Matrice: ");
+    while ((buffer[n++] = getchar()) != '\n');
+	buffer[n - 1] = '\0';
+	printf("File Name: %s\n", buffer);
+
+	int secondSize = read_ints(buffer);
+	
+	func(sockfd);
 	// close the socket
 	close(sockfd);
 }
